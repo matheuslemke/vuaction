@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "jsx": "preserve",
+    "isolatedModules": true,
     "target": "ES2018",
     "module": "ESNext",
     "moduleResolution": "Node",
