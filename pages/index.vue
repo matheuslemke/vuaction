@@ -12,12 +12,24 @@
         Start test
       </button>
     </div>
-    <div v-if="testStarted" class="cursor-pointer" @click="guessClick">
-      <div
-        class="bg-red-500 flex text-center text-3xl text-gray-100 tracking-widest leading-loose items-center place-content-center centered"
-      >
-        Wait for green
+
+    <div
+      v-if="testStarted && !guessClicked"
+      class="cursor-pointer bg-red-500 flex text-center text-3xl text-gray-100 tracking-widest leading-loose items-center place-content-center centered"
+      @click="guessClicked = true"
+    >
+      Wait for green...
+    </div>
+
+    <div
+      v-if="testStarted && guessClicked"
+      class="cursor-pointer bg-yellow-400 flex flex-col text-center items-center place-content-center centered"
+      @click="retry"
+    >
+      <div class="text-3xl text-gray-70 tracking-widest leading-loose">
+        Don't try to guess
       </div>
+      <div class="text-xl text-gray-70">Click to retry</div>
     </div>
     <div v-if="shouldShowResults">
       Results here
@@ -37,12 +49,14 @@ export default Vue.extend({
   data() {
     return {
       testStarted: false,
+      guessClicked: false,
       shouldShowResults: false,
     }
   },
   methods: {
-    guessClick: () => {
-      console.log('asdada')
+    retry() {
+      this.testStarted = false
+      this.guessClicked = false
     },
   },
 })
