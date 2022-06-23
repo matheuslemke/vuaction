@@ -22,8 +22,10 @@ export default Vue.extend({
   },
   methods: {
     startTest() {
-      this.shouldShowGreen = false
       this.testStarted = true
+      this.shouldShowGreen = false
+      this.guessClicked = false
+      this.shouldShowResults = false
       const waitTime =
         (Math.random() * (MAX_WAIT_SECONDS - MIN_WAIT_SECONDS + 1) +
           MIN_WAIT_SECONDS) *
@@ -39,12 +41,6 @@ export default Vue.extend({
       this.shouldShowGreen = false
       this.testStarted = false
       this.shouldShowResults = true
-    },
-    retry() {
-      this.testStarted = false
-      this.guessClicked = false
-      this.shouldShowGreen = false
-      this.shouldShowResults = false
     },
   },
 })
@@ -82,7 +78,7 @@ export default Vue.extend({
     <div
       v-show="testStarted && guessClicked"
       class="cursor-pointer bg-yellow-400 flex flex-col text-center items-center place-content-center centered"
-      @click="retry"
+      @click="startTest"
     >
       <div class="text-3xl text-gray-70 tracking-widest leading-loose">
         Don't try to guess
@@ -98,7 +94,7 @@ export default Vue.extend({
         Your reaction time is
         <span class="text-5xl">{{ reactionTime }}</span> milliseconds
       </div>
-      <PrimaryButton title="Restart" @clicked="retry"></PrimaryButton>
+      <PrimaryButton title="Try again" @clicked="startTest"></PrimaryButton>
     </div>
   </div>
 </template>
