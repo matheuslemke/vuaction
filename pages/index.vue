@@ -4,19 +4,8 @@ import Vue from 'vue'
 import MainHeader from '../components/MainHeader.vue'
 import PrimaryButton from '../components/PrimaryButton.vue'
 
-const MAX_SECONDS = 10
-const MIN_SECONDS = 1
-const ATTEMPTS = 5
-let times: number[] = []
-
-function nextStage(stage: number, guessClicked: boolean) {
-  console.log('currentStage', stage)
-  if (stage >= ATTEMPTS || guessClicked) {
-    return -1
-  }
-  setTimeout(() => nextStage(++stage, false), times[stage] * 1000)
-  return 0
-}
+const MIN_WAIT_SECONDS = 1
+const MAX_WAIT_SECONDS = 4
 
 export default Vue.extend({
   name: 'IndexPage',
@@ -24,25 +13,38 @@ export default Vue.extend({
   data() {
     return {
       testStarted: false,
+      shouldShowGreen: false,
       guessClicked: false,
       shouldShowResults: false,
+      startTime: 0,
+      reactionTime: 0,
     }
   },
   methods: {
     startTest() {
+      this.shouldShowGreen = false
       this.testStarted = true
+      const waitTime =
+        (Math.random() * (MAX_WAIT_SECONDS - MIN_WAIT_SECONDS + 1) +
+          MIN_WAIT_SECONDS) *
+        1000
 
-      times = Array(ATTEMPTS)
-        .fill(null)
-        .map(
-          () => Math.random() * (MAX_SECONDS - MIN_SECONDS + 1) + MIN_SECONDS
-        )
-
-      nextStage(0, this.guessClicked)
+      setTimeout(() => {
+        this.shouldShowGreen = true
+        this.startTime = Date.now()
+      }, waitTime)
+    },
+    reacted() {
+      this.reactionTime = Date.now() - this.startTime
+      this.shouldShowGreen = false
+      this.testStarted = false
+      this.shouldShowResults = true
     },
     retry() {
       this.testStarted = false
       this.guessClicked = false
+      this.shouldShowGreen = false
+      this.shouldShowResults = false
     },
   },
 })
@@ -51,15 +53,16 @@ export default Vue.extend({
 <template>
   <div class="min-h-screen flex flex-col">
     <MainHeader />
+
     <div
-      v-if="!testStarted"
+      v-show="!testStarted && !shouldShowResults"
       class="bg-gray-300 flex text-center items-center place-content-center centered"
     >
       <PrimaryButton title="Start test" @clicked="startTest" />
     </div>
 
     <div
-      v-if="testStarted && !guessClicked"
+      v-show="testStarted && !guessClicked && !shouldShowGreen"
       class="cursor-pointer bg-red-500 flex text-center text-3xl text-gray-100 tracking-widest leading-loose items-center place-content-center centered"
       @click="guessClicked = true"
     >
@@ -67,7 +70,17 @@ export default Vue.extend({
     </div>
 
     <div
-      v-if="testStarted && guessClicked"
+      v-show="shouldShowGreen && !guessClicked"
+      class="cursor-pointer bg-green-400 flex flex-col text-center items-center place-content-center centered"
+      @click="reacted"
+    >
+      <div class="text-3xl text-gray-70 tracking-widest leading-loose">
+        Click it!!!
+      </div>
+    </div>
+
+    <div
+      v-show="testStarted && guessClicked"
       class="cursor-pointer bg-yellow-400 flex flex-col text-center items-center place-content-center centered"
       @click="retry"
     >
@@ -76,10 +89,16 @@ export default Vue.extend({
       </div>
       <div class="text-xl text-gray-70">Click to retry</div>
     </div>
-    <div v-if="shouldShowResults">
-      Results here
-      <button>Next try</button>
-      <button>Restart</button>
+
+    <div
+      v-show="shouldShowResults"
+      class="bg-gray-300 flex flex-col text-center items-center place-content-center centered"
+    >
+      <div class="text-3xl text-gray-70 tracking-widest leading-loose">
+        Your reaction time is
+        <span class="text-5xl">{{ reactionTime }}</span> milliseconds
+      </div>
+      <PrimaryButton title="Restart" @clicked="retry"></PrimaryButton>
     </div>
   </div>
 </template>
