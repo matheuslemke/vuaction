@@ -1,3 +1,53 @@
+<script lang="ts">
+import { setTimeout } from 'timers'
+import Vue from 'vue'
+import MainHeader from '../components/MainHeader.vue'
+import PrimaryButton from '../components/PrimaryButton.vue'
+
+const MAX_SECONDS = 10
+const MIN_SECONDS = 1
+const ATTEMPTS = 5
+let times: number[] = []
+
+function nextStage(stage: number, guessClicked: boolean) {
+  console.log('currentStage', stage)
+  if (stage >= ATTEMPTS || guessClicked) {
+    return -1
+  }
+  setTimeout(() => nextStage(++stage, false), times[stage] * 1000)
+  return 0
+}
+
+export default Vue.extend({
+  name: 'IndexPage',
+  components: { MainHeader, PrimaryButton },
+  data() {
+    return {
+      testStarted: false,
+      guessClicked: false,
+      shouldShowResults: false,
+    }
+  },
+  methods: {
+    startTest() {
+      this.testStarted = true
+
+      times = Array(ATTEMPTS)
+        .fill(null)
+        .map(
+          () => Math.random() * (MAX_SECONDS - MIN_SECONDS + 1) + MIN_SECONDS
+        )
+
+      nextStage(0, this.guessClicked)
+    },
+    retry() {
+      this.testStarted = false
+      this.guessClicked = false
+    },
+  },
+})
+</script>
+
 <template>
   <div class="min-h-screen flex flex-col">
     <MainHeader />
@@ -5,12 +55,7 @@
       v-if="!testStarted"
       class="bg-gray-300 flex text-center items-center place-content-center centered"
     >
-      <button
-        class="bg-green-700 hover:bg-green-900 text-gray-100 py-2 px-4 rounded shadow"
-        @click="testStarted = true"
-      >
-        Start test
-      </button>
+      <PrimaryButton title="Start test" @clicked="startTest" />
     </div>
 
     <div
@@ -38,29 +83,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import Vue from 'vue'
-import MainHeader from '../components/MainHeader.vue'
-
-export default Vue.extend({
-  name: 'IndexPage',
-  components: { MainHeader },
-  data() {
-    return {
-      testStarted: false,
-      guessClicked: false,
-      shouldShowResults: false,
-    }
-  },
-  methods: {
-    retry() {
-      this.testStarted = false
-      this.guessClicked = false
-    },
-  },
-})
-</script>
 
 <style>
 .centered {
