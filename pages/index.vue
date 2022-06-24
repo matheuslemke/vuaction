@@ -1,5 +1,4 @@
 <script lang="ts">
-import { setTimeout } from 'timers'
 import Vue from 'vue'
 import MainHeader from '../components/MainHeader.vue'
 import PrimaryButton from '../components/PrimaryButton.vue'
@@ -18,7 +17,11 @@ export default Vue.extend({
       shouldShowResults: false,
       startTime: 0,
       reactionTime: 0,
+      waitIntervalId: 0,
     }
+  },
+  head: {
+    title: 'Vueaction',
   },
   methods: {
     startTest() {
@@ -31,12 +34,21 @@ export default Vue.extend({
           MIN_WAIT_SECONDS) *
         1000
 
-      setTimeout(() => {
+      this.waitIntervalId = setInterval(() => {
         this.shouldShowGreen = true
         this.startTime = Date.now()
+        clearInterval(this.waitIntervalId)
       }, waitTime)
     },
+    guessed() {
+      clearInterval(this.waitIntervalId)
+      this.testStarted = true
+      this.shouldShowGreen = false
+      this.guessClicked = true
+      this.shouldShowResults = false
+    },
     reacted() {
+      clearInterval(this.waitIntervalId)
       this.reactionTime = Date.now() - this.startTime
       this.shouldShowGreen = false
       this.testStarted = false
@@ -60,7 +72,7 @@ export default Vue.extend({
     <div
       v-show="testStarted && !guessClicked && !shouldShowGreen"
       class="cursor-pointer bg-red-500 flex text-center text-3xl text-gray-100 tracking-widest leading-loose items-center place-content-center centered"
-      @click="guessClicked = true"
+      @click="guessed"
     >
       Wait for green...
     </div>
