@@ -5,6 +5,8 @@ import PrimaryButton from '../components/PrimaryButton.vue'
 
 const MIN_WAIT_SECONDS = 1
 const MAX_WAIT_SECONDS = 4
+let startTime: number = 0
+let waitIntervalId: any
 
 export default Vue.extend({
   name: 'IndexPage',
@@ -15,9 +17,7 @@ export default Vue.extend({
       shouldShowGreen: false,
       guessClicked: false,
       shouldShowResults: false,
-      startTime: 0,
       reactionTime: 0,
-      waitIntervalId: 0,
     }
   },
   head: {
@@ -34,22 +34,22 @@ export default Vue.extend({
           MIN_WAIT_SECONDS) *
         1000
 
-      this.waitIntervalId = setInterval(() => {
+      waitIntervalId = setInterval(() => {
         this.shouldShowGreen = true
-        this.startTime = Date.now()
-        clearInterval(this.waitIntervalId)
+        startTime = Date.now()
+        clearInterval(waitIntervalId)
       }, waitTime)
     },
     guessed() {
-      clearInterval(this.waitIntervalId)
+      clearInterval(waitIntervalId)
       this.testStarted = true
       this.shouldShowGreen = false
       this.guessClicked = true
       this.shouldShowResults = false
     },
     reacted() {
-      clearInterval(this.waitIntervalId)
-      this.reactionTime = Date.now() - this.startTime
+      clearInterval(waitIntervalId)
+      this.reactionTime = Date.now() - startTime
       this.shouldShowGreen = false
       this.testStarted = false
       this.shouldShowResults = true
