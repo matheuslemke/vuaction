@@ -1,4 +1,8 @@
-# vuaction
+![Vercel](https://therealsujitk-vercel-badge.vercel.app/?app=vueaction)
+
+# Vuaction
+
+Test your ~~react~~vueaction time.
 
 ## Build Setup
 
